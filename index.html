@@ -2,54 +2,105 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>12-Hour World Clock</title>
+    <title>Dynamic 12h World Clock</title>
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f2f5;
+            margin: 0;
         }
-        .clock-container {
-            text-align: center;
+        .card {
             background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
         }
-        #location { font-weight: bold; color: #555; margin-bottom: 5px; }
-        #clock { font-size: 3rem; color: #333; }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .location-label {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        #clock {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #2d3436;
+            letter-spacing: -1px;
+        }
+        .ampm {
+            font-size: 1.5rem;
+            color: #0984e3;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="clock-container">
-        <div id="location">{London, UK}</div>
-        <div id="clock">00:00:00 AM</div>
+    <div class="card">
+        <select id="timezone-selector">
+            <option value="local">Your Local Time</option>
+            <option value="America/New_York">{New York, USA}</option>
+            <option value="Europe/London">{London, UK}</option>
+            <option value="Asia/Tokyo">{Tokyo, Japan}</option>
+            <option value="Australia/Sydney">{Sydney, Australia}</option>
+            <option value="Europe/Paris">{Paris, France}</option>
+        </select>
+
+        <div class="location-label" id="current-location">Local Time</div>
+        <div id="clock">00:00:00 <span class="ampm">AM</span></div>
     </div>
 
     <script>
         function updateClock() {
-            const now = new Date();
-            let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const selector = document.getElementById('timezone-selector');
+            const selectedZone = selector.value;
+            const clockElement = document.getElementById('clock');
+            const locationLabel = document.getElementById('current-location');
 
-            // Convert to 12-hour format
-            hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
-            const strHours = String(hours).padStart(2, '0');
+            // Set the options for formatting the time
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
 
-            const timeString = `${strHours}:${minutes}:${seconds} ${ampm}`;
-            document.getElementById('clock').textContent = timeString;
+            // If a specific timezone is selected, add it to options
+            if (selectedZone !== 'local') {
+                options.timeZone = selectedZone;
+                locationLabel.textContent = selector.options[selector.selectedIndex].text;
+            } else {
+                locationLabel.textContent = "Your Local Time";
+            }
+
+            // Create a formatter and display the time
+            const formatter = new Intl.DateTimeFormat('en-US', options);
+            const parts = formatter.formatToParts(new Date());
+            
+            // Re-assembling manually to style the AM/PM differently
+            const timeStr = parts.filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();
+            const ampmStr = parts.find(p => p.type === 'dayPeriod').value;
+
+            clockElement.innerHTML = `${timeStr} <span class="ampm">${ampmStr}</span>`;
         }
 
-        // Update the clock every second
+        // Refresh every second
         setInterval(updateClock, 1000);
-        updateClock(); // Run immediately on load
+        updateClock();
     </script>
 </body>
 </html>
