@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aesthetic Friends Clock Mini</title>
+  <title>Aesthetic Friends Clock Slim</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:italic,wght@600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -34,14 +34,13 @@
       justify-content: center;
       min-height: 100vh;
       font-family: 'Inter', sans-serif;
-      color: var(--text-main);
       transition: background 0.3s ease;
       perspective: 1000px;
     }
 
     .clock-container {
-      width: 260px; /* Reduced from 320px */
-      height: 200px; /* Reduced from 240px */
+      width: 260px; 
+      height: 160px; /* SHORTER: Reduced from 200px */
       position: relative;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
@@ -55,8 +54,8 @@
       height: 100%;
       backface-visibility: hidden;
       background: var(--cal-bg);
-      padding: 1.2rem; /* Reduced padding */
-      border-radius: 10px; /* Slightly sharper corners for small scale */
+      padding: 0.8rem 1.2rem; /* Tighter vertical padding */
+      border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.03);
       display: flex;
       flex-direction: column;
@@ -69,29 +68,26 @@
 
     .flip-btn {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 8px;
+      right: 8px;
       background: none;
       border: none;
       cursor: pointer;
       color: var(--text-dim);
-      font-size: 16px;
-      transition: color 0.2s;
+      font-size: 14px;
     }
-    
-    .flip-btn:hover { color: var(--accent-green); }
 
     .friend-label-front {
-      font-size: 9px; /* Reduced */
+      font-size: 8px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--accent-green);
-      margin-bottom: 6px;
+      margin-bottom: 2px; /* Tighter margin */
       font-weight: 600;
     }
 
     .date-row {
-      margin-bottom: 0rem;
+      margin-bottom: -2px; /* Pulls time closer */
       display: flex;
       align-items: baseline;
       gap: 5px;
@@ -99,21 +95,21 @@
 
     .month-serif { 
       font-family: 'Playfair Display', serif; 
-      font-size: 18px; /* Reduced from 22px */
+      font-size: 16px; /* Slightly smaller */
       font-style: italic; 
       font-weight: 600; 
     }
     
     .day-year-sans { 
-      font-size: 13px; /* Reduced from 16px */
+      font-size: 12px; 
       color: var(--text-dim); 
     }
 
     .time-display {
-      font-size: 34px; /* Reduced from 42px */
+      font-size: 32px; /* Slightly smaller to fit slim height */
       font-weight: 700;
       letter-spacing: 0.02em;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.5rem; /* Reduced from 0.8rem */
       line-height: 1;
       font-variant-numeric: tabular-nums;
     }
@@ -122,37 +118,25 @@
       background: none;
       border: 1px solid var(--border-dark);
       color: var(--text-dim);
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 6px;
-      font-size: 9px; /* Reduced from 10px */
+      font-size: 8px; /* Tiniest font for theme toggle */
       font-weight: 600;
       text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
 
-    /* Back Page Search Styles */
-    .search-group { width: 100%; margin-bottom: 10px; }
+    /* Back Page Search Styles (Tighter for slim view) */
+    .search-group { width: 100%; margin-bottom: 6px; }
     
     .section-title { 
-      font-size: 8px; 
-      font-weight: 700; 
-      color: var(--text-dim); 
-      text-transform: uppercase; 
-      margin-bottom: 4px; 
-      letter-spacing: 0.08em;
+      font-size: 7px; 
+      margin-bottom: 2px;
     }
     
     input.search-bar {
-      width: 100%;
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: 1px solid var(--border-dark);
-      background: var(--bg);
-      color: var(--text-main);
-      font-size: 11px;
-      outline: none;
-      font-family: 'Inter', sans-serif;
+      padding: 4px 8px;
+      font-size: 10px;
     }
   </style>
 </head>
@@ -186,6 +170,7 @@
 </div>
 
 <script>
+  // Logic remains identical to ensure functionality
   const container = document.getElementById('card-container');
   const displayName = document.getElementById('display-name');
   const themeBtn = document.getElementById('theme-btn');
@@ -241,7 +226,7 @@
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const nextTheme = isDark ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', nextTheme);
-    themeBtn.textContent = nextTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    themeBtn.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
   };
 
   function updateClock() {
