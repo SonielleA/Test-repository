@@ -1,101 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Global 12h Clock</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #1a1a2e;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .clock-card {
-            background: #16213e;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            text-align: center;
-            border: 1px solid #0f3460;
-            width: 400px;
-        }
-        select {
-            width: 100%;
-            padding: 12px;
-            background: #0f3460;
-            color: #e94560;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            outline: none;
-        }
-        #clock {
-            font-size: 3.5rem;
-            font-family: 'Courier New', monospace;
-            color: #00d2ff;
-            text-shadow: 0 0 20px rgba(0,210,255,0.3);
-        }
-        .label {
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.8rem;
-            color: #95a5a6;
-            margin-bottom: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Romania Aesthetic Clock Small</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:italic,wght@600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #faf9f6;
+      --cal-bg: #ffffff;
+      --accent-green: #8e9775;
+      --text-main: #1a1a1a;
+      --text-dim: #999;
+      --border-dark: #888;
+      --hover-bg: #f5f5f5;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --cal-bg: #1e1e1e;
+      --text-main: #f0f0f0;
+      --text-dim: #777;
+      --border-dark: #555;
+      --hover-bg: #2a2a2a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      transition: background 0.3s ease;
+      perspective: 1000px; /* Needed for flip */
+    }
+
+    /* Flip Card Container */
+    .clock-container {
+      width: 320px;
+      height: 220px;
+      position: relative;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .clock-container.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .clock-card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background: var(--cal-bg);
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Back of Card */
+    .clock-card-back {
+      transform: rotateY(180deg);
+    }
+
+    .flip-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-size: 18px;
+      transition: color 0.2s;
+    }
+    .flip-btn:hover { color: var(--accent-green); }
+
+    .date-row {
+      margin-bottom: 0.1rem;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .month-serif {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    .day-year-sans {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-dim);
+    }
+
+    .time-display {
+      font-family: 'Inter', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 1.2rem;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .theme-toggle, .save-btn {
+      background: none;
+      border: 1px solid var(--border-dark);
+      color: var(--text-dim);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle:hover, .save-btn:hover {
+      border-color: var(--accent-green);
+      color: var(--text-main);
+      background: var(--hover-bg);
+    }
+
+    /* Select Styles for Back */
+    select {
+      width: 100%;
+      padding: 8px;
+      background: var(--bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-dark);
+      border-radius: 5px;
+      margin: 15px 0;
+      font-size: 12px;
+    }
+    .back-title { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; }
+  </style>
 </head>
 <body>
 
-    <div class="clock-card">
-        <div class="label">Select Global Location</div>
-        <select id="zone-picker"></select>
-
-        <div class="label">Current Time</div>
-        <div id="clock">00:00:00 AM</div>
+<div class="clock-container" id="card-container">
+  <div class="clock-card">
+    <button class="flip-btn" onclick="toggleFlip()">→</button>
+    <div class="date-row">
+      <span class="month-serif" id="month">--</span>
+      <span class="day-year-sans" id="day-year">--</span>
     </div>
+    <div class="time-display" id="time">--:-- --</div>
+    <div class="theme-toggle-container">
+      <button class="theme-toggle" id="theme-btn">Switch Mode</button>
+    </div>
+  </div>
 
-    <script>
-        const picker = document.getElementById('zone-picker');
-        const clockDisplay = document.getElementById('clock');
+  <div class="clock-card clock-card-back">
+    <button class="flip-btn" onclick="toggleFlip()">←</button>
+    <div class="back-title">Choose Location</div>
+    <select id="tz-picker"></select>
+    <button class="save-btn" onclick="toggleFlip()">Done</button>
+  </div>
+</div>
 
-        // 1. Automatically get ALL timezones available in the browser
-        const allZones = Intl.supportedValuesOf('timeZone');
+<script>
+  const themeBtn = document.getElementById('theme-btn');
+  const container = document.getElementById('card-container');
+  const tzPicker = document.getElementById('tz-picker');
+  
+  // Default timezone
+  let currentTz = "Europe/Bucharest";
 
-        // 2. Populate the dropdown menu
-        allZones.forEach(zone => {
-            const option = document.createElement('option');
-            option.value = zone;
-            // Clean up the text: Replace underscores with spaces and wrap in {}
-            option.textContent = `{${zone.replace(/_/g, ' ')}}`;
-            picker.appendChild(option);
-        });
+  // Populate Timezones
+  const zones = Intl.supportedValuesOf('timeZone');
+  zones.forEach(zone => {
+    const opt = document.createElement('option');
+    opt.value = zone;
+    opt.textContent = `{${zone.replace(/_/g, ' ')}}`;
+    if(zone === currentTz) opt.selected = true;
+    tzPicker.appendChild(opt);
+  });
 
-        // Set default to user's local timezone
-        picker.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  tzPicker.onchange = (e) => {
+    currentTz = e.target.value;
+    updateClock();
+  };
 
-        function updateClock() {
-            const now = new Date();
-            const zone = picker.value;
+  function toggleFlip() {
+    container.classList.toggle('flipped');
+  }
 
-            // Format to 12-hour time for the selected zone
-            const timeString = now.toLocaleTimeString('en-US', {
-                timeZone: zone,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
+  themeBtn.onclick = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const nextTheme = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    themeBtn.textContent = nextTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+  };
 
-            clockDisplay.textContent = timeString;
-        }
+  function updateClock() {
+    const now = new Date();
 
-        setInterval(updateClock, 1000);
-        updateClock();
-    </script>
+    const timeStr = now.toLocaleTimeString('en-US', { 
+      timeZone: currentTz,
+      hour: 'numeric', 
+      minute: '2-digit', 
+      hour12: true 
+    }).toLowerCase();
+
+    const monthStr = now.toLocaleDateString('en-US', { timeZone: currentTz, month: 'long' });
+
+    const dayYearStr = now.toLocaleDateString('en-US', { timeZone: currentTz, day: 'numeric' }) 
+      + ", " + now.toLocaleDateString('en-US', { timeZone: currentTz, year: 'numeric' });
+
+    document.getElementById("time").textContent = timeStr;
+    document.getElementById("month").textContent = monthStr;
+    document.getElementById("day-year").textContent = dayYearStr;
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>
+
 </body>
 </html>
