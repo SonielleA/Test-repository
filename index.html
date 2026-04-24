@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aesthetic Friends Clock</title>
+  <title>Aesthetic Friends Clock Mini</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:italic,wght@600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -40,8 +40,8 @@
     }
 
     .clock-container {
-      width: 320px;
-      height: 240px; /* Slightly tighter height */
+      width: 260px; /* Reduced from 320px */
+      height: 200px; /* Reduced from 240px */
       position: relative;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
@@ -55,9 +55,9 @@
       height: 100%;
       backface-visibility: hidden;
       background: var(--cal-bg);
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      padding: 1.2rem; /* Reduced padding */
+      border-radius: 10px; /* Slightly sharper corners for small scale */
+      box-shadow: 0 8px 24px rgba(0,0,0,0.03);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -69,51 +69,51 @@
 
     .flip-btn {
       position: absolute;
-      top: 15px;
-      right: 15px;
+      top: 10px;
+      right: 10px;
       background: none;
       border: none;
       cursor: pointer;
       color: var(--text-dim);
-      font-size: 18px;
+      font-size: 16px;
       transition: color 0.2s;
     }
     
     .flip-btn:hover { color: var(--accent-green); }
 
     .friend-label-front {
-      font-size: 11px;
+      font-size: 9px; /* Reduced */
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.12em;
       color: var(--accent-green);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-weight: 600;
     }
 
     .date-row {
-      margin-bottom: 0.1rem;
+      margin-bottom: 0rem;
       display: flex;
       align-items: baseline;
-      gap: 6px;
+      gap: 5px;
     }
 
     .month-serif { 
       font-family: 'Playfair Display', serif; 
-      font-size: 22px; 
+      font-size: 18px; /* Reduced from 22px */
       font-style: italic; 
       font-weight: 600; 
     }
     
     .day-year-sans { 
-      font-size: 16px; 
+      font-size: 13px; /* Reduced from 16px */
       color: var(--text-dim); 
     }
 
     .time-display {
-      font-size: 42px;
+      font-size: 34px; /* Reduced from 42px */
       font-weight: 700;
-      letter-spacing: 0.02em; /* Added the 4-5 spacing you liked */
-      margin-bottom: 1.2rem;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.8rem;
       line-height: 1;
       font-variant-numeric: tabular-nums;
     }
@@ -122,46 +122,38 @@
       background: none;
       border: 1px solid var(--border-dark);
       color: var(--text-dim);
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 10px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 9px; /* Reduced from 10px */
       font-weight: 600;
       text-transform: uppercase;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    .theme-toggle:hover {
-      border-color: var(--accent-green);
-      color: var(--text-main);
-      background: var(--hover-bg);
-    }
-
     /* Back Page Search Styles */
-    .search-group { width: 100%; margin-bottom: 15px; }
+    .search-group { width: 100%; margin-bottom: 10px; }
     
     .section-title { 
-      font-size: 9px; 
+      font-size: 8px; 
       font-weight: 700; 
       color: var(--text-dim); 
       text-transform: uppercase; 
-      margin-bottom: 6px; 
-      letter-spacing: 0.1em;
+      margin-bottom: 4px; 
+      letter-spacing: 0.08em;
     }
     
     input.search-bar {
       width: 100%;
-      padding: 8px 12px;
-      border-radius: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
       border: 1px solid var(--border-dark);
       background: var(--bg);
       color: var(--text-main);
-      font-size: 12px;
+      font-size: 11px;
       outline: none;
       font-family: 'Inter', sans-serif;
     }
-
-    input.search-bar:focus { border-color: var(--accent-green); }
   </style>
 </head>
 <body>
@@ -180,13 +172,11 @@
 
   <div class="clock-card clock-card-back">
     <button class="flip-btn" onclick="toggleFlip()">←</button>
-    
     <div class="search-group">
       <div class="section-title">Friends Time</div>
       <input list="friends-options" id="friend-search" class="search-bar" placeholder="Select friend...">
       <datalist id="friends-options"></datalist>
     </div>
-
     <div class="search-group">
       <div class="section-title">Search Location</div>
       <input list="tz-options" id="location-search" class="search-bar" placeholder="City or Country...">
@@ -199,10 +189,8 @@
   const container = document.getElementById('card-container');
   const displayName = document.getElementById('display-name');
   const themeBtn = document.getElementById('theme-btn');
-  
   let currentTz = "Europe/Bucharest";
 
-  // Friends List
   const friends = [
     { name: "My Time", zone: "Europe/Bucharest" },
     { name: "Alicia", zone: "Asia/Singapore" },
@@ -211,7 +199,6 @@
     { name: "Sofia", zone: "Europe/Paris" }
   ];
 
-  // Populate Datalists
   const friendsList = document.getElementById('friends-options');
   friends.forEach(f => {
     const opt = document.createElement('option');
@@ -250,7 +237,6 @@
 
   function toggleFlip() { container.classList.toggle('flipped'); }
 
-  // Theme Switcher Logic
   themeBtn.onclick = () => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const nextTheme = isDark ? 'light' : 'dark';
@@ -260,16 +246,13 @@
 
   function updateClock() {
     const now = new Date();
-    
     const timeStr = now.toLocaleTimeString('en-US', { 
       timeZone: currentTz,
       hour: 'numeric', minute: '2-digit', hour12: true 
     }).toLowerCase();
-
     const monthStr = now.toLocaleDateString('en-US', { timeZone: currentTz, month: 'long' });
     const dayYearStr = now.toLocaleDateString('en-US', { timeZone: currentTz, day: 'numeric' }) 
       + ", " + now.toLocaleDateString('en-US', { timeZone: currentTz, year: 'numeric' });
-
     document.getElementById("time").textContent = timeStr;
     document.getElementById("month").textContent = monthStr;
     document.getElementById("day-year").textContent = dayYearStr;
@@ -278,6 +261,5 @@
   setInterval(updateClock, 1000);
   updateClock();
 </script>
-
 </body>
 </html>
