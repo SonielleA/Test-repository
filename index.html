@@ -41,7 +41,7 @@
 
     .clock-container {
       width: 320px;
-      height: 280px; /* Slightly taller for the list */
+      height: 260px;
       position: relative;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
@@ -64,7 +64,11 @@
       align-items: center;
     }
 
-    .clock-card-back { transform: rotateY(180deg); overflow-y: auto; }
+    .clock-card-back { 
+      transform: rotateY(180deg); 
+      justify-content: flex-start;
+      overflow-y: auto;
+    }
 
     .flip-btn {
       position: absolute;
@@ -75,6 +79,15 @@
       cursor: pointer;
       color: var(--text-dim);
       font-size: 18px;
+    }
+
+    .friend-label-front {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-green);
+      margin-bottom: 8px;
+      font-weight: 600;
     }
 
     .date-row {
@@ -90,53 +103,62 @@
     .time-display {
       font-size: 42px;
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       font-variant-numeric: tabular-nums;
     }
 
-    .friend-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--accent-green);
-      margin-bottom: 5px;
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border-dark);
+      color: var(--text-dim);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 10px;
       font-weight: 600;
+      text-transform: uppercase;
+      cursor: pointer;
     }
 
-    /* Back Styles */
-    .back-title { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px; }
-    
-    .friends-list {
+    /* Back Page Styles */
+    .section-title { 
+      font-size: 11px; 
+      font-weight: 700; 
+      color: var(--text-dim); 
+      text-transform: uppercase; 
+      margin: 15px 0 8px 0; 
       width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-bottom: 15px;
+      text-align: left;
+    }
+    
+    .friends-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
     }
 
     .friend-btn {
-      width: 100%;
       padding: 8px;
       border: 1px solid var(--border-dark);
       background: none;
       color: var(--text-main);
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
-      text-align: left;
+      text-align: center;
       transition: 0.2s;
     }
 
     .friend-btn:hover { background: var(--hover-bg); border-color: var(--accent-green); }
 
-    input#tz-input {
+    input#search-input {
       width: 100%;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 10px;
+      border-radius: 8px;
       border: 1px solid var(--border-dark);
       background: var(--bg);
       color: var(--text-main);
-      font-size: 11px;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -145,60 +167,48 @@
 <div class="clock-container" id="card-container">
   <div class="clock-card">
     <button class="flip-btn" onclick="toggleFlip()">→</button>
-    <div id="friend-name" class="friend-label">My Time</div>
+    <div id="display-name" class="friend-label-front">My Time</div>
     <div class="date-row">
       <span class="month-serif" id="month">--</span>
       <span class="day-year-sans" id="day-year">--</span>
     </div>
     <div class="time-display" id="time">--:-- --</div>
-    <button class="theme-toggle" id="theme-btn" style="background:none; border:1px solid var(--border-dark); font-size:9px; padding:5px 10px; border-radius:5px; color:var(--text-dim); cursor:pointer;">MODE</button>
+    <button class="theme-toggle" id="theme-btn">Switch Mode</button>
   </div>
 
   <div class="clock-card clock-card-back">
     <button class="flip-btn" onclick="toggleFlip()">←</button>
-    <div class="back-title">Quick Select Friend</div>
     
-    <div class="friends-list" id="friends-list">
-      </div>
+    <div class="section-title" style="margin-top: 0;">Friends Time</div>
+    <div class="friends-grid">
+      <button class="friend-btn" onclick="setClock('Europe/Bucharest', 'My Time')">Home</button>
+      <button class="friend-btn" onclick="setClock('Asia/Singapore', 'Alicia')">Alicia</button>
+      <button class="friend-btn" onclick="setClock('Asia/Singapore', 'Andrew')">Andrew</button>
+      <button class="friend-btn" onclick="setClock('Europe/London', 'Thomas')">Thomas</button>
+    </div>
 
-    <div class="back-title">Search Other Location</div>
-    <input list="tz-options" id="tz-input" placeholder="Type city...">
+    <div class="section-title">Search Location</div>
+    <input list="tz-options" id="search-input" placeholder="Type or select city...">
     <datalist id="tz-options"></datalist>
   </div>
 </div>
 
 <script>
   const container = document.getElementById('card-container');
-  const tzInput = document.getElementById('tz-input');
-  const friendNameDisplay = document.getElementById('friend-name');
+  const searchInput = document.getElementById('search-input');
+  const displayName = document.getElementById('display-name');
   
   let currentTz = "Europe/Bucharest";
 
-  // 1. Define your friends here!
-  const friends = [
-    { name: "My Time", zone: "Europe/Bucharest" },
-    { name: "Alicia", zone: "Asia/Singapore" },
-    { name: "Andrew", zone: "Asia/Singapore" },
-    { name: "Sofia", zone: "Europe/London" },
-    { name: "Marcus", zone: "America/New_York" }
-  ];
+  // Function to switch location and flip back
+  function setClock(tz, name) {
+    currentTz = tz;
+    displayName.textContent = name;
+    updateClock();
+    toggleFlip();
+  }
 
-  // 2. Generate the Friend Buttons
-  const listContainer = document.getElementById('friends-list');
-  friends.forEach(f => {
-    const btn = document.createElement('button');
-    btn.className = 'friend-btn';
-    btn.textContent = `${f.name} (${f.zone.split('/').pop().replace(/_/g, ' ')})`;
-    btn.onclick = () => {
-      currentTz = f.zone;
-      friendNameDisplay.textContent = f.name;
-      updateClock();
-      toggleFlip();
-    };
-    listContainer.appendChild(btn);
-  });
-
-  // Populate Datalist for custom search
+  // Populate Search Options
   const zones = Intl.supportedValuesOf('timeZone');
   const datalist = document.getElementById('tz-options');
   zones.forEach(zone => {
@@ -207,24 +217,28 @@
     datalist.appendChild(opt);
   });
 
-  tzInput.onchange = () => {
-    if (zones.includes(tzInput.value)) {
-      currentTz = tzInput.value;
-      friendNameDisplay.textContent = currentTz.split('/').pop().replace(/_/g, ' ');
-      updateClock();
-      toggleFlip();
+  // Handle manual search
+  searchInput.onchange = () => {
+    if (zones.includes(searchInput.value)) {
+      const city = searchInput.value.split('/').pop().replace(/_/g, ' ');
+      setClock(searchInput.value, city);
     }
   };
 
   function toggleFlip() { container.classList.toggle('flipped'); }
 
+  // Theme Switcher
   document.getElementById('theme-btn').onclick = () => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    const nextTheme = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    document.getElementById('theme-btn').textContent = nextTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
   };
 
   function updateClock() {
     const now = new Date();
+    
+    // 12h Format Logic
     const timeStr = now.toLocaleTimeString('en-US', { 
       timeZone: currentTz,
       hour: 'numeric', minute: '2-digit', hour12: true 
