@@ -3,46 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notion Friends Clock</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:italic,wght@600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <title>Aesthetic Friends Clock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:italic,wght@600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-page: transparent;
-      --bg-widget: #ffffff;
+      --bg: #faf9f6;
+      --cal-bg: #ffffff;
+      --accent-green: #8e9775;
       --text-main: #1a1a1a;
-      --text-dim: #999999;
-      --border: rgba(0,0,0,0.1);
-      --accent: #8e9775;
-      /* Replace URL below with your preferred default image */
-      --widget-bg: url('https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?q=80&w=2560');
-      --overlay: rgba(255, 255, 255, 0.85);
+      --text-dim: #999;
+      --border-dark: #888;
+      --hover-bg: #f5f5f5;
     }
 
     [data-theme="dark"] {
-      --bg-widget: #1e1e1e;
+      --bg: #121212;
+      --cal-bg: #1e1e1e;
       --text-main: #f0f0f0;
-      --text-dim: #777777;
-      --border: rgba(255,255,255,0.1);
-      --overlay: rgba(30, 30, 30, 0.85);
+      --text-dim: #777;
+      --border-dark: #555;
+      --hover-bg: #2a2a2a;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--bg-page);
+      background: var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       font-family: 'Inter', sans-serif;
       color: var(--text-main);
+      transition: background 0.3s ease;
       perspective: 1000px;
-      overflow: hidden;
     }
 
     .clock-container {
       width: 320px;
-      height: 280px;
+      height: 240px; /* Slightly tighter height */
       position: relative;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
@@ -55,89 +54,73 @@
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      background-color: var(--bg-widget);
-      background-image: var(--widget-bg);
-      background-size: cover;
-      background-position: center;
+      background: var(--cal-bg);
+      padding: 1.5rem;
       border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
-    }
-
-    /* Consistent Overlay */
-    .clock-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: var(--overlay);
-      z-index: 1;
-      transition: background 0.3s ease;
-    }
-
-    .content-wrapper {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      padding: 1.5rem;
       text-align: center;
     }
 
     .clock-card-back { transform: rotateY(180deg); }
 
-    /* Flip Button Styling */
     .flip-btn {
       position: absolute;
       top: 15px;
       right: 15px;
       background: none;
-      border: 1px solid var(--border);
+      border: none;
       cursor: pointer;
       color: var(--text-dim);
-      font-size: 14px;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 3;
+      font-size: 18px;
+      transition: color 0.2s;
     }
+    
+    .flip-btn:hover { color: var(--accent-green); }
 
-    .friend-label {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: 14px;
-      color: var(--accent);
-      margin-bottom: 4px;
+    .friend-label-front {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-green);
+      margin-bottom: 8px;
       font-weight: 600;
     }
 
     .date-row {
+      margin-bottom: 0.1rem;
       display: flex;
       align-items: baseline;
-      justify-content: center;
       gap: 6px;
-      margin-bottom: 2px;
     }
 
-    .month-serif { font-family: 'Playfair Display', serif; font-size: 22px; font-style: italic; font-weight: 600; }
-    .day-year-sans { font-size: 16px; color: var(--text-dim); }
+    .month-serif { 
+      font-family: 'Playfair Display', serif; 
+      font-size: 22px; 
+      font-style: italic; 
+      font-weight: 600; 
+    }
+    
+    .day-year-sans { 
+      font-size: 16px; 
+      color: var(--text-dim); 
+    }
 
     .time-display {
-      font-size: 48px;
+      font-size: 42px;
       font-weight: 700;
-      letter-spacing: -0.04em;
-      margin-bottom: 1.5rem;
+      letter-spacing: 0.02em; /* Added the 4-5 spacing you liked */
+      margin-bottom: 1.2rem;
+      line-height: 1;
       font-variant-numeric: tabular-nums;
     }
 
     .theme-toggle {
       background: none;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-dark);
       color: var(--text-dim);
       padding: 6px 14px;
       border-radius: 8px;
@@ -145,37 +128,156 @@
       font-weight: 600;
       text-transform: uppercase;
       cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent-green);
+      color: var(--text-main);
+      background: var(--hover-bg);
     }
 
     /* Back Page Search Styles */
-    .search-group { width: 100%; margin-bottom: 15px; text-align: left; }
+    .search-group { width: 100%; margin-bottom: 15px; }
+    
     .section-title { 
-      font-size: 10px; 
+      font-size: 9px; 
       font-weight: 700; 
       color: var(--text-dim); 
       text-transform: uppercase; 
       margin-bottom: 6px; 
-      letter-spacing: 0.5px;
+      letter-spacing: 0.1em;
     }
     
     input.search-bar {
       width: 100%;
-      padding: 10px;
+      padding: 8px 12px;
       border-radius: 8px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--border-dark);
+      background: var(--bg);
       color: var(--text-main);
       font-size: 12px;
       outline: none;
+      font-family: 'Inter', sans-serif;
     }
+
+    input.search-bar:focus { border-color: var(--accent-green); }
   </style>
 </head>
 <body>
 
 <div class="clock-container" id="card-container">
   <div class="clock-card">
-    <button class="flip-btn" onclick="toggleFlip()">⚙</button>
-    <div class="content-wrapper">
-      <div id="display-name" class="friend-label">My Time</div>
-      <div class="date-row">
-        <span class="month-serif" id="month
+    <button class="flip-btn" onclick="toggleFlip()">→</button>
+    <div id="display-name" class="friend-label-front">My Time</div>
+    <div class="date-row">
+      <span class="month-serif" id="month">--</span>
+      <span class="day-year-sans" id="day-year">--</span>
+    </div>
+    <div class="time-display" id="time">--:-- --</div>
+    <button class="theme-toggle" id="theme-btn">Switch Mode</button>
+  </div>
+
+  <div class="clock-card clock-card-back">
+    <button class="flip-btn" onclick="toggleFlip()">←</button>
+    
+    <div class="search-group">
+      <div class="section-title">Friends Time</div>
+      <input list="friends-options" id="friend-search" class="search-bar" placeholder="Select friend...">
+      <datalist id="friends-options"></datalist>
+    </div>
+
+    <div class="search-group">
+      <div class="section-title">Search Location</div>
+      <input list="tz-options" id="location-search" class="search-bar" placeholder="City or Country...">
+      <datalist id="tz-options"></datalist>
+    </div>
+  </div>
+</div>
+
+<script>
+  const container = document.getElementById('card-container');
+  const displayName = document.getElementById('display-name');
+  const themeBtn = document.getElementById('theme-btn');
+  
+  let currentTz = "Europe/Bucharest";
+
+  // Friends List
+  const friends = [
+    { name: "My Time", zone: "Europe/Bucharest" },
+    { name: "Alicia", zone: "Asia/Singapore" },
+    { name: "Andrew", zone: "Asia/Singapore" },
+    { name: "Thomas", zone: "Europe/London" },
+    { name: "Sofia", zone: "Europe/Paris" }
+  ];
+
+  // Populate Datalists
+  const friendsList = document.getElementById('friends-options');
+  friends.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.name;
+    friendsList.appendChild(opt);
+  });
+
+  const zones = Intl.supportedValuesOf('timeZone');
+  const tzList = document.getElementById('tz-options');
+  zones.forEach(zone => {
+    const opt = document.createElement('option');
+    opt.value = zone;
+    tzList.appendChild(opt);
+  });
+
+  function setClock(tz, name) {
+    currentTz = tz;
+    displayName.textContent = name;
+    updateClock();
+    toggleFlip();
+    document.getElementById('friend-search').value = "";
+    document.getElementById('location-search').value = "";
+  }
+
+  document.getElementById('friend-search').oninput = (e) => {
+    const match = friends.find(f => f.name === e.target.value);
+    if (match) setClock(match.zone, match.name);
+  };
+
+  document.getElementById('location-search').oninput = (e) => {
+    if (zones.includes(e.target.value)) {
+      const cityName = e.target.value.split('/').pop().replace(/_/g, ' ');
+      setClock(e.target.value, cityName);
+    }
+  };
+
+  function toggleFlip() { container.classList.toggle('flipped'); }
+
+  // Theme Switcher Logic
+  themeBtn.onclick = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const nextTheme = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    themeBtn.textContent = nextTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+  };
+
+  function updateClock() {
+    const now = new Date();
+    
+    const timeStr = now.toLocaleTimeString('en-US', { 
+      timeZone: currentTz,
+      hour: 'numeric', minute: '2-digit', hour12: true 
+    }).toLowerCase();
+
+    const monthStr = now.toLocaleDateString('en-US', { timeZone: currentTz, month: 'long' });
+    const dayYearStr = now.toLocaleDateString('en-US', { timeZone: currentTz, day: 'numeric' }) 
+      + ", " + now.toLocaleDateString('en-US', { timeZone: currentTz, year: 'numeric' });
+
+    document.getElementById("time").textContent = timeStr;
+    document.getElementById("month").textContent = monthStr;
+    document.getElementById("day-year").textContent = dayYearStr;
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>
+
+</body>
+</html>
