@@ -2,103 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dynamic 12h World Clock</title>
+    <title>Global 12h Clock</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e9ecef;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #1a1a2e;
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
-        .card {
-            background: white;
-            padding: 2.5rem;
+        .clock-card {
+            background: #16213e;
+            padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             text-align: center;
-            width: 350px;
+            border: 1px solid #0f3460;
+            width: 400px;
         }
         select {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
+            padding: 12px;
+            background: #0f3460;
+            color: #e94560;
+            border: none;
             border-radius: 8px;
-            border: 1px solid #ddd;
             font-size: 1rem;
-            cursor: pointer;
-        }
-        .location-label {
-            font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            outline: none;
         }
         #clock {
             font-size: 3.5rem;
-            font-weight: bold;
-            color: #2d3436;
-            letter-spacing: -1px;
+            font-family: 'Courier New', monospace;
+            color: #00d2ff;
+            text-shadow: 0 0 20px rgba(0,210,255,0.3);
         }
-        .ampm {
-            font-size: 1.5rem;
-            color: #0984e3;
-            margin-left: 5px;
+        .label {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            color: #95a5a6;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <select id="timezone-selector">
-            <option value="local">Your Local Time</option>
-            <option value="America/New_York">{New York, USA}</option>
-            <option value="Europe/London">{London, UK}</option>
-            <option value="Asia/Tokyo">{Tokyo, Japan}</option>
-            <option value="Australia/Sydney">{Sydney, Australia}</option>
-            <option value="Europe/Paris">{Paris, France}</option>
-        </select>
+    <div class="clock-card">
+        <div class="label">Select Global Location</div>
+        <select id="zone-picker"></select>
 
-        <div class="location-label" id="current-location">Local Time</div>
-        <div id="clock">00:00:00 <span class="ampm">AM</span></div>
+        <div class="label">Current Time</div>
+        <div id="clock">00:00:00 AM</div>
     </div>
 
     <script>
-        function updateClock() {
-            const selector = document.getElementById('timezone-selector');
-            const selectedZone = selector.value;
-            const clockElement = document.getElementById('clock');
-            const locationLabel = document.getElementById('current-location');
+        const picker = document.getElementById('zone-picker');
+        const clockDisplay = document.getElementById('clock');
 
-            // Set the options for formatting the time
-            const options = {
+        // 1. Automatically get ALL timezones available in the browser
+        const allZones = Intl.supportedValuesOf('timeZone');
+
+        // 2. Populate the dropdown menu
+        allZones.forEach(zone => {
+            const option = document.createElement('option');
+            option.value = zone;
+            // Clean up the text: Replace underscores with spaces and wrap in {}
+            option.textContent = `{${zone.replace(/_/g, ' ')}}`;
+            picker.appendChild(option);
+        });
+
+        // Set default to user's local timezone
+        picker.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        function updateClock() {
+            const now = new Date();
+            const zone = picker.value;
+
+            // Format to 12-hour time for the selected zone
+            const timeString = now.toLocaleTimeString('en-US', {
+                timeZone: zone,
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
                 hour12: true
-            };
+            });
 
-            // If a specific timezone is selected, add it to options
-            if (selectedZone !== 'local') {
-                options.timeZone = selectedZone;
-                locationLabel.textContent = selector.options[selector.selectedIndex].text;
-            } else {
-                locationLabel.textContent = "Your Local Time";
-            }
-
-            // Create a formatter and display the time
-            const formatter = new Intl.DateTimeFormat('en-US', options);
-            const parts = formatter.formatToParts(new Date());
-            
-            // Re-assembling manually to style the AM/PM differently
-            const timeStr = parts.filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();
-            const ampmStr = parts.find(p => p.type === 'dayPeriod').value;
-
-            clockElement.innerHTML = `${timeStr} <span class="ampm">${ampmStr}</span>`;
+            clockDisplay.textContent = timeString;
         }
 
-        // Refresh every second
         setInterval(updateClock, 1000);
         updateClock();
     </script>
