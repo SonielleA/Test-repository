@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Romania Aesthetic Clock Small</title>
+  <title>Aesthetic World Clock</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:italic,wght@600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -36,21 +36,18 @@
       font-family: 'Inter', sans-serif;
       color: var(--text-main);
       transition: background 0.3s ease;
-      perspective: 1000px; /* Needed for flip */
+      perspective: 1000px;
     }
 
-    /* Flip Card Container */
     .clock-container {
       width: 320px;
       height: 220px;
       position: relative;
-      transition: transform 0.6s;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
     }
 
-    .clock-container.flipped {
-      transform: rotateY(180deg);
-    }
+    .clock-container.flipped { transform: rotateY(180deg); }
 
     .clock-card {
       position: absolute;
@@ -59,23 +56,20 @@
       backface-visibility: hidden;
       background: var(--cal-bg);
       padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
     }
 
-    /* Back of Card */
-    .clock-card-back {
-      transform: rotateY(180deg);
-    }
+    .clock-card-back { transform: rotateY(180deg); }
 
     .flip-btn {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 15px;
+      right: 15px;
       background: none;
       border: none;
       cursor: pointer;
@@ -83,41 +77,25 @@
       font-size: 18px;
       transition: color 0.2s;
     }
-    .flip-btn:hover { color: var(--accent-green); }
 
     .date-row {
       margin-bottom: 0.1rem;
       display: flex;
       align-items: baseline;
-      justify-content: center;
       gap: 6px;
     }
 
-    .month-serif {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-style: italic;
-      font-weight: 600;
-    }
-
-    .day-year-sans {
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
-      font-weight: 400;
-      color: var(--text-dim);
-    }
+    .month-serif { font-family: 'Playfair Display', serif; font-size: 22px; font-style: italic; font-weight: 600; }
+    .day-year-sans { font-size: 16px; color: var(--text-dim); }
 
     .time-display {
-      font-family: 'Inter', sans-serif;
       font-size: 42px;
       font-weight: 700;
-      letter-spacing: 0.02em;
       margin-bottom: 1.2rem;
-      line-height: 1;
       font-variant-numeric: tabular-nums;
     }
 
-    .theme-toggle, .save-btn {
+    .theme-toggle, .done-btn {
       background: none;
       border: 1px solid var(--border-dark);
       color: var(--text-dim);
@@ -126,29 +104,24 @@
       font-size: 10px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
 
-    .theme-toggle:hover, .save-btn:hover {
-      border-color: var(--accent-green);
-      color: var(--text-main);
-      background: var(--hover-bg);
-    }
-
-    /* Select Styles for Back */
-    select {
+    /* Search Input Styles */
+    .search-container { width: 100%; margin: 15px 0; }
+    
+    input#tz-input {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-dark);
       background: var(--bg);
       color: var(--text-main);
-      border: 1px solid var(--border-dark);
-      border-radius: 5px;
-      margin: 15px 0;
-      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
     }
-    .back-title { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; }
+
+    .back-title { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
   </style>
 </head>
 <body>
@@ -160,57 +133,60 @@
       <span class="month-serif" id="month">--</span>
       <span class="day-year-sans" id="day-year">--</span>
     </div>
+    <div id="location-tag" style="font-size: 10px; color: var(--accent-green); margin-bottom: 5px;">Bucharest</div>
     <div class="time-display" id="time">--:-- --</div>
-    <div class="theme-toggle-container">
-      <button class="theme-toggle" id="theme-btn">Switch Mode</button>
-    </div>
+    <button class="theme-toggle" id="theme-btn">Switch Mode</button>
   </div>
 
   <div class="clock-card clock-card-back">
     <button class="flip-btn" onclick="toggleFlip()">←</button>
-    <div class="back-title">Choose Location</div>
-    <select id="tz-picker"></select>
-    <button class="save-btn" onclick="toggleFlip()">Done</button>
+    <div class="back-title">Type Location</div>
+    
+    <div class="search-container">
+      <input list="tz-options" id="tz-input" placeholder="e.g. Singapore, Tokyo...">
+      <datalist id="tz-options"></datalist>
+    </div>
+
+    <button class="done-btn" onclick="toggleFlip()">Set Clock</button>
   </div>
 </div>
 
 <script>
-  const themeBtn = document.getElementById('theme-btn');
   const container = document.getElementById('card-container');
-  const tzPicker = document.getElementById('tz-picker');
+  const tzInput = document.getElementById('tz-input');
+  const datalist = document.getElementById('tz-options');
+  const locationTag = document.getElementById('location-tag');
   
-  // Default timezone
   let currentTz = "Europe/Bucharest";
 
-  // Populate Timezones
+  // Populate Datalist for searching
   const zones = Intl.supportedValuesOf('timeZone');
   zones.forEach(zone => {
     const opt = document.createElement('option');
     opt.value = zone;
-    opt.textContent = `{${zone.replace(/_/g, ' ')}}`;
-    if(zone === currentTz) opt.selected = true;
-    tzPicker.appendChild(opt);
+    // We keep the value as the ID, but the browser will help users find it
+    datalist.appendChild(opt);
   });
 
-  tzPicker.onchange = (e) => {
-    currentTz = e.target.value;
-    updateClock();
+  // Handle Search Input
+  tzInput.onchange = () => {
+    if (zones.includes(tzInput.value)) {
+      currentTz = tzInput.value;
+      locationTag.textContent = currentTz.split('/').pop().replace(/_/g, ' ');
+      updateClock();
+    }
   };
 
-  function toggleFlip() {
-    container.classList.toggle('flipped');
-  }
+  function toggleFlip() { container.classList.toggle('flipped'); }
 
-  themeBtn.onclick = () => {
+  // Theme Logic
+  document.getElementById('theme-btn').onclick = () => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const nextTheme = isDark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', nextTheme);
-    themeBtn.textContent = nextTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
   };
 
   function updateClock() {
     const now = new Date();
-
     const timeStr = now.toLocaleTimeString('en-US', { 
       timeZone: currentTz,
       hour: 'numeric', 
@@ -219,7 +195,6 @@
     }).toLowerCase();
 
     const monthStr = now.toLocaleDateString('en-US', { timeZone: currentTz, month: 'long' });
-
     const dayYearStr = now.toLocaleDateString('en-US', { timeZone: currentTz, day: 'numeric' }) 
       + ", " + now.toLocaleDateString('en-US', { timeZone: currentTz, year: 'numeric' });
 
