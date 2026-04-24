@@ -64,11 +64,7 @@
       align-items: center;
     }
 
-    .clock-card-back { 
-      transform: rotateY(180deg); 
-      justify-content: flex-start;
-      overflow-y: auto;
-    }
+    .clock-card-back { transform: rotateY(180deg); justify-content: center; }
 
     .flip-btn {
       position: absolute;
@@ -119,39 +115,18 @@
       cursor: pointer;
     }
 
-    /* Back Page Styles */
+    /* Back Page Search Styles */
+    .search-group { width: 100%; margin-bottom: 15px; }
     .section-title { 
-      font-size: 11px; 
+      font-size: 10px; 
       font-weight: 700; 
       color: var(--text-dim); 
       text-transform: uppercase; 
-      margin: 15px 0 8px 0; 
-      width: 100%;
-      text-align: left;
+      margin-bottom: 6px; 
+      letter-spacing: 0.5px;
     }
     
-    .friends-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      width: 100%;
-    }
-
-    .friend-btn {
-      padding: 8px;
-      border: 1px solid var(--border-dark);
-      background: none;
-      color: var(--text-main);
-      border-radius: 6px;
-      font-size: 11px;
-      cursor: pointer;
-      text-align: center;
-      transition: 0.2s;
-    }
-
-    .friend-btn:hover { background: var(--hover-bg); border-color: var(--accent-green); }
-
-    input#search-input {
+    input.search-bar {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
@@ -159,7 +134,10 @@
       background: var(--bg);
       color: var(--text-main);
       font-size: 12px;
+      outline: none;
     }
+
+    input.search-bar:focus { border-color: var(--accent-green); }
   </style>
 </head>
 <body>
@@ -179,49 +157,74 @@
   <div class="clock-card clock-card-back">
     <button class="flip-btn" onclick="toggleFlip()">←</button>
     
-    <div class="section-title" style="margin-top: 0;">Friends Time</div>
-    <div class="friends-grid">
-      <button class="friend-btn" onclick="setClock('Europe/Bucharest', 'My Time')">Home</button>
-      <button class="friend-btn" onclick="setClock('Asia/Singapore', 'Alicia')">Alicia</button>
-      <button class="friend-btn" onclick="setClock('Asia/Singapore', 'Andrew')">Andrew</button>
-      <button class="friend-btn" onclick="setClock('Europe/London', 'Thomas')">Thomas</button>
+    <div class="search-group">
+      <div class="section-title">Friends Time</div>
+      <input list="friends-options" id="friend-search" class="search-bar" placeholder="Type friend's name...">
+      <datalist id="friends-options"></datalist>
     </div>
 
-    <div class="section-title">Search Location</div>
-    <input list="tz-options" id="search-input" placeholder="Type or select city...">
-    <datalist id="tz-options"></datalist>
+    <div class="search-group">
+      <div class="section-title">Search Location</div>
+      <input list="tz-options" id="location-search" class="search-bar" placeholder="Type city or country...">
+      <datalist id="tz-options"></datalist>
+    </div>
   </div>
 </div>
 
 <script>
   const container = document.getElementById('card-container');
-  const searchInput = document.getElementById('search-input');
   const displayName = document.getElementById('display-name');
   
   let currentTz = "Europe/Bucharest";
 
-  // Function to switch location and flip back
+  // 1. Define your Friends list here
+  const friends = [
+    { name: "My Time", zone: "Europe/Bucharest" },
+    { name: "Alicia", zone: "Asia/Singapore" },
+    { name: "Andrew", zone: "Asia/Singapore" },
+    { name: "Thomas", zone: "Europe/London" },
+    { name: "Sofia", zone: "Europe/Paris" }
+  ];
+
+  // Populate Friends Datalist
+  const friendsList = document.getElementById('friends-options');
+  friends.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.name;
+    friendsList.appendChild(opt);
+  });
+
+  // Populate Global Locations Datalist
+  const zones = Intl.supportedValuesOf('timeZone');
+  const tzList = document.getElementById('tz-options');
+  zones.forEach(zone => {
+    const opt = document.createElement('option');
+    opt.value = zone;
+    tzList.appendChild(opt);
+  });
+
+  // Function to update and flip
   function setClock(tz, name) {
     currentTz = tz;
     displayName.textContent = name;
     updateClock();
     toggleFlip();
+    // Clear inputs for next time
+    document.getElementById('friend-search').value = "";
+    document.getElementById('location-search').value = "";
   }
 
-  // Populate Search Options
-  const zones = Intl.supportedValuesOf('timeZone');
-  const datalist = document.getElementById('tz-options');
-  zones.forEach(zone => {
-    const opt = document.createElement('option');
-    opt.value = zone;
-    datalist.appendChild(opt);
-  });
+  // Handle Friends Search
+  document.getElementById('friend-search').oninput = (e) => {
+    const match = friends.find(f => f.name === e.target.value);
+    if (match) setClock(match.zone, match.name);
+  };
 
-  // Handle manual search
-  searchInput.onchange = () => {
-    if (zones.includes(searchInput.value)) {
-      const city = searchInput.value.split('/').pop().replace(/_/g, ' ');
-      setClock(searchInput.value, city);
+  // Handle Location Search
+  document.getElementById('location-search').oninput = (e) => {
+    if (zones.includes(e.target.value)) {
+      const cityName = e.target.value.split('/').pop().replace(/_/g, ' ');
+      setClock(e.target.value, cityName);
     }
   };
 
@@ -237,8 +240,6 @@
 
   function updateClock() {
     const now = new Date();
-    
-    // 12h Format Logic
     const timeStr = now.toLocaleTimeString('en-US', { 
       timeZone: currentTz,
       hour: 'numeric', minute: '2-digit', hour12: true 
